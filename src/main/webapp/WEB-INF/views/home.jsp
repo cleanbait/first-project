@@ -1,0 +1,913 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ANABADA of 3Mars</title>
+<link rel="icon" href="${pageContext.request.contextPath}/resources/img2/logo.png"> <!-- 탭에 로고 박기 -->
+<script src="http://code.jquery.com/jquery-latest.min.js"></script> <!-- 제이쿼리 -->
+<script type="text/javascript">
+
+/* 양쪽 체크박스 중복 방지 */ 
+
+//햄버거
+function leftcheck() {
+	var leftChecked = document.getElementsByName("menuicon");
+	var rightChecked = document.getElementsByName("sicon"); 
+
+	/* 장바구니 자동 꺼짐 */
+	if(leftChecked[0].checked == true) {
+		rightChecked[0].checked = false;
+	}
+}
+
+//장바구니
+function rightcheck() {
+	var leftChecked = document.getElementsByName("menuicon");
+	var rightChecked = document.getElementsByName("sicon");
+
+	/* 왼쪽 메뉴 자동꺼짐*/
+	if(rightChecked[0].checked == true) {
+		leftChecked[0].checked = false;
+		
+	// NewFile에 있는거 가져오기
+	$.ajax({
+		url : "NewFile",
+		type : "GET",
+		dataType : "text",
+		success : function(result) {
+
+			$("#list_smol").html(result);
+					
+			}, error(request, status, error) {
+				alert("false");
+				console.log(request, status, error);
+			}
+	});
+		
+	}				
+
+}
+
+/* 장바구니바 펼쳤을때 */
+function unfold() {
+	var target = document.getElementById("unfold");
+	var target2 = document.getElementById("wait");
+	var basket = document.getElementById("width");
+	var icon = document.getElementById("change");
+	var botan = document.getElementById("back");
+	var hidebutton = document.getElementById("hidebutton");
+
+	$.ajax({
+		url : "payment",
+		type : "GET",
+		dataType : "text",
+		success : function(result) {
+
+			$("#list").html(result);
+			list_smol.innerHTML = "";
+
+			/* 장바구니바 넓이 */
+			target.style.width = "100%";
+
+			/* 장바구니 칸 */
+			basket.style.width = "90%";
+			
+			/* 햄버거바 임시 숨김 */
+			target2.style.opacity = 0;
+			target2.style.transition = "all 0.7s";
+			target2.style.cursor = "default";
+
+			/* 아이콘 숨기기 */
+			icon.style.opacity = 0;
+
+			/* botan */
+			botan.style.transition = "all 1.3s";
+			botan.style.opacity = 100;
+			botan.style.cursor = "pointer";
+
+			/* 장바구니바 구매버튼 숨기기 */
+			hidebutton.style.opacity = 0;
+			hidebutton.style.cursor = "default";
+
+		}, error(request, status, error) {
+			alert("false");
+			console.log(request, status, error);
+		}
+	});	
+}
+
+/* 장바구니 돌아갈때 */
+function homeback() {
+	var target = document.getElementById("unfold");
+	var target2 = document.getElementById("wait");
+	var basket = document.getElementById("width");
+	var icon = document.getElementById("change");
+	var botan = document.getElementById("back");
+	var hidebutton = document.getElementById("hidebutton");
+	var list = document.getElementById("list");
+
+	list.innerHTML = "";
+	
+	target.style.width = "300px";
+	basket.style.width = "250px";
+	target2.style.opacity = 100;
+	target2.style.transition = "all 0s";
+	target2.style.cursor = "pointer";
+	icon.style.opacity = 100;
+	botan.style.transition = "all 0.3s";
+	botan.style.opacity = 0;
+	hidebutton.style.opacity = 100;
+	hidebutton.style.cursor = "pointer";
+
+	rightcheck();
+}
+
+
+</script>
+<style type="text/css">
+@font-face {
+    src: url("${pageContext.request.contextPath}/resources/font/OpenSans-VariableFont_wdth,wght.ttf");
+    font-family: "dream";
+}
+
+@font-face {
+    src: url("${pageContext.request.contextPath}/resources/font/abster-webfont.woff");
+    font-family: "abster";
+}
+
+* {
+    font-family: "dream";
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#wrapper {
+	height: auto;
+	min-height: 100%;
+	padding-bottom: 150px;
+}
+
+.container {
+ height: 2300px;
+}
+
+footer {
+	height: 150px;
+	background-color: black;
+	color: white;
+	text-align: center;
+	line-height: 30px;
+	border-top: 1.5px solid;
+	border-color: #020202;
+}
+
+/* 장바구니 바 설정 */
+
+.hidden_menu {
+	position:absolute;
+	top: 10px;
+	width: 100%;
+	z-index: 1;
+}
+
+.hidden_menu input {
+	border: 0;
+	outline: 0;
+	display: block;
+	margin: auto;
+	font-size: 25px;
+	padding: 3px;
+	background-color: #FFF;
+	color: #2C1B01;
+	opacity: 0;
+	font-weight: bold;
+}
+
+.back {
+	
+}
+
+/* 장바구니바 클릭시 */
+input[id="sicon"] {
+	display: none;
+}
+
+input[id="sicon"] + label {
+	display: block;
+	cursor: pointer;
+	color: black;
+	font-weight: bold;
+	font-size: 17px;
+	position: relative;
+	width: 43px;
+	height: 33px;
+}
+
+input[id="sicon"] + label span {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 5px;
+	border-radius: 1px;
+}
+
+input[id="sicon"] + label span:nth-child(1) {
+	top:0;
+}
+
+input[id="sicon"] + label span:nth-child(2) {
+	bottom:0;
+}
+
+input[id="sicon"]:checked + label span:nth-child(1) {
+	top: 7px;
+	left: -50px;
+	transform: rotate(45deg);
+	background-color: #020202;
+	position: relative;
+	height: 2px;
+	width: 20px;
+	transition:all 0.3s;
+}
+
+input[id="sicon"]:checked + label span:nth-child(2) {
+	bottom: 10px;
+	left: -50px;
+	transform: rotate(-45deg);
+	background-color: #020202;
+	height: 2px;
+	width: 20px;
+	transition:all 0.3s;
+}
+
+input[id="sicon"]:checked + label a {
+	position: absolute;
+	color: #020202;
+	transition:all 0.5s;
+}
+
+input[id="sicon"]:checked + label {
+	z-index: 3;
+}
+
+/* 장바구니 바 확장 */
+
+div[class="shopping_bar"] {
+	display: block;
+	width: 300px;
+	height: 100%;
+	background: #FFF;
+	position: fixed;
+	top: 0;
+	right: -300px;
+	z-index:2;
+	transition:all .35s;
+	border-left: 1.5px solid;
+	border-color: #2C1B01;
+}
+
+input[id="sicon"]:checked + label + div {
+	right: 0;
+}
+
+/* 장바구니 바 작게했을 때 */
+
+.shopping_bar div[class="shopping_menu"] {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%,-50%);
+	width: 250px;
+	height: 80%;
+	color: #2C1B01;
+	/* border: 1px solid; */
+	text-align: center;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	-ms-overflow-style: none;
+}
+
+.shopping_bar div[class="shopping_menu"]::-webkit-scrollbar{ display:none; }
+
+.shopping_bar #hidebutton {
+	position: absolute;
+	bottom: 3%;
+	left: 150px;
+	font-size: 15px;
+	font-weight: bold;
+    width: 130px;
+    padding: 8px;
+    color: #2C1B01;
+    background-color: #FFF;
+   	border: 1px solid;
+   	border-radius: 15px;
+	transform: translate(-50%);
+	cursor: pointer;
+}
+
+.shopping_bar #hidebutton:hover {
+    color: white;
+    background-color: #2C1B01;
+}
+
+/* 장바구니 길게 했을 때 */
+
+.maincart {
+	text-align: justify;
+    display: flex;
+    padding-top: 2%;
+    padding-left: 15%;
+    padding-right: 15%;
+    padding-bottom: 2%;
+}
+
+.item {
+    flex-grow: 900;
+}
+
+.checkout {
+    flex: 0 0 300px;
+    margin-left: 100px;
+}
+
+.total {
+    position: relative;
+}
+
+.check {
+    margin-top: 30px;
+}
+
+.check input {
+    width: 250px;
+    font-size: 20px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    background-color: white;
+    border: 1px solid;
+    color: #2C1B01;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.check input:hover {
+    background-color: #2C1B01;
+    color: #FFF;
+}
+
+
+/* 상품들 */
+
+
+.bundle {
+    display: flex;
+    color: #343434;
+}
+
+.item ul {
+    list-style: none;
+}
+
+hr {
+	background-color: #020202;
+	border-color: #020202;
+	opacity: 40%;
+}
+
+.item_img {
+    width: 100px;
+    height: 100px;
+    border: 1px solid;
+    flex: 1;
+    max-width: 100px;
+}
+
+.item_img img {
+    width: 100px;
+    height: 100px;
+}
+
+.item_text {
+    flex: 1;
+    margin-left: 20px;
+    max-width: 80%;
+}
+
+.item_amount {
+    flex: 1;
+    max-width: 90px;
+    margin-left: 50px;
+    
+}
+
+.item_price {
+    flex: 1;
+    max-width: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.close-button { 
+         float: right; 
+         width: 1.5rem; 
+         line-height: 1.5rem; 
+         text-align: center; 
+         cursor: pointer; 
+         border-radius: 0.25rem; 
+         color: #020202; 
+}
+
+/* 햄버거햄버거햄버거햄버거햄버거햄버거햄버거햄버거 바 설정 */
+
+input[id="menuicon"] {
+	display:none;	
+}
+
+input[id="menuicon"] + label {
+	display:block;
+	width: 40px;
+	height: 30px;
+	position: relative;
+	cursor:pointer;
+	position: fixed;
+	margin: 10px;
+	z-index: 2;
+	top: 5px;
+	left: 20px;
+}
+
+input[id="menuicon"] + label span {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 3px;
+	border-radius: 30px;
+	background: #2C1B01;
+	transition: all .35s;
+}
+
+input[id="menuicon"] + label span:nth-child(1) {
+	top:0;
+}
+
+input[id="menuicon"] + label span:nth-child(2) {
+	top:50%;
+	transform:translateY(-50%);
+}
+
+input[id="menuicon"] + label span:nth-child(3) {
+	bottom: 0;
+}
+
+input[id="menuicon"]:checked + label span:nth-child(1) {
+	top:50%;
+	transform:translateY(-50%) rotate(45deg);
+}
+
+input[id="menuicon"]:checked + label span:nth-child(2) {
+	opacity: 0;
+}
+
+input[id="menuicon"]:checked + label span:nth-child(3) {
+	bottom: 50%;
+	transform:translateY(50%) rotate(-45deg);
+}
+
+div[class="sidebar"] {
+	display: flex;
+	justify-content: center;
+	width:300px;
+	height: 100%;
+	background: #FFF;
+	position: fixed;
+	top: 0;
+	left: -300px;
+	z-index:2;
+	transition:all .35s;
+	border-right: 1.5px solid;
+	border-color: #2C1B01;
+}
+
+input[id="menuicon"]:checked + label + div {
+	left: 0;
+}
+
+input[id="menuicon"]:checked + label {
+	z-index:3;
+}
+
+input[id="menuicon"]:checked + label span {
+    background: #020202;
+}
+
+div div[class="sidemenu"] {
+	position:absolute;
+	top:100px;
+	left:20px;
+	width: 250px;
+	height: 800px;
+	color: #fff;
+}
+
+.sidemenu a {
+	text-decoration: none;
+	color: #2C1B01;
+	font-size: 40px;
+	font-style: bold;
+}
+
+.leftline {
+	border-bottom: 1.5px solid;
+	position: absolute;
+	top: -1%;
+	color: #020202;
+	width: 100%;
+	height: 71px;
+}
+
+.rightline {
+	border-bottom: 1.5px solid;
+	position: absolute;
+	top: -1%;
+	color: #020202;
+	width: 100%;
+	height: 71px;
+	float: left;
+}
+
+/* 네비 바와 로고 */
+
+.nav {
+	border: 1.5px solid;
+	width: 100%;
+	position:absolute;
+	top: -1%;
+	left: -2px;
+	height: 70px;
+	z-index: 1;
+	position: fixed;
+	background-color: #fff;
+	border-color: #020202;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 120px;
+    font-size: 25px;
+}
+
+.logolink {
+    text-decoration: none;
+    color: #2C1B01;
+    font-family: "abster";
+}
+
+/* 네비바 오른쪽 메뉴들 */
+
+.smol .smol_ul {
+	position: relative;
+	top: 10px;
+	background-color: #FFF;
+	float: right;
+}
+
+.smol .smol_li {
+	list-style-type: none;
+	float:left;
+	margin-right: 30px;
+}
+
+.smol a {
+	text-decoration: none;
+	color: #2C1B01;
+	font-weight: bold;
+	font-size: 17px;
+}
+
+/* 작은 장바구니 */
+
+
+.simple {
+	max-width: 250px;
+	display: inline-block;
+	vertical-align: top;
+	text-align: left;
+}
+
+.simple_ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0;
+}
+
+.simple_ul li {
+	position: relative;
+	padding-top: 0;
+	padding-bottom: 20px;
+	margin-top: 0;
+	margin-bottom: 20px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+.simple .ig {
+	width: 80px;
+	height: 80px;
+	margin-right: 10px;
+}
+
+.simple .simple_info {
+	display: inline-block;
+	vertical-align: top;
+	width: 130px;
+	text-align: left;
+	font-size: 14px;
+	color: #343434;
+}
+
+.simple .simple_name {
+}
+
+.simple .simple_price {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* 메인 이미지 */
+
+.first {
+	display: block;
+	position: relative;
+	top: 60px;
+	height: 800px;
+	width: 100%;
+}
+
+.first .seck {
+	position: absolute;
+	height: 800px;
+	width: 100%;
+	background-color: #263238;
+	opacity: 60%;
+}
+
+.first img {
+	height: 800px;
+	width: 100%;
+	float: left;
+}
+
+.first .text {
+	position : absolute;
+	left : 33%; top : 50%;
+	transform: translate(-50%,-50%);
+	text-align: left;
+	color: white;
+}
+
+.first .text p {
+	font-weight: 600;
+}
+
+.first .text input {
+	margin-top: 20px;
+	background-color: rgba(0,0,0,0);
+	border-radius: 15px;
+	cursor: pointer;
+	font-size: 15px;
+	padding: 7px 18px;
+	border-color: white;
+	border: 1px solid;
+	color: white;
+	transition: color .3s;
+}
+
+.first .text input:hover {
+	background-color: white;
+	color: #2C1B01;
+	border-color: white;
+}
+
+.main_img {
+	position: absolute;
+	left : 49%; top : 28%;
+}
+
+.main_img img {
+	height: 600px;
+	width: 700px;
+	border-radius: 5px;
+	box-shadow: 0 5px 38px -10px black;
+}
+
+/* 이미지 밑의 텍스트 */
+
+.main_text {
+	text-align: center;
+	width: 100%;
+	font-weight: 900;
+	font-size: 150px;
+	color: #DEDEDE;
+	opacity: 25%;
+}
+
+.our_shop {
+	display: flex;
+	margin: auto;
+	width: 70%;
+	height: 300px;
+	margin-bottom: 100px;
+}
+
+.our_shop .simg {
+	height: 100%;
+	width: 40%;
+	margin-left: 10%
+}
+
+.our_shop .simg img {
+	width: 100%;
+	height: 100%;
+}
+
+.our_shop .textline {
+	height: 100%;
+	width: 35%;
+	margin-left: 5%;
+	margin-right: 15%;
+}
+
+.textline h2 {
+	margin-top: 0;
+}
+
+.our_story {
+	display: flex;
+	margin: auto;
+	width: 70%;
+	height: 300px;
+	margin-bottom: 100px;
+}
+
+.our_story .textline2 {
+	height: 100%;
+	width: 35%;
+	margin-left: 10%;
+}
+
+.our_story .timg {
+	height: 100%;
+	width: 40%;
+	margin-left: 5%;
+	margin-right: 15%;
+}
+
+.our_story .timg img {
+	width: 100%;
+	height: 100%;
+}
+
+.textline2 h2 {
+	margin-top: 0;
+}
+
+</style>
+</head>
+<body>
+<div id='wrapper'>
+	<!-- 햄버거 바 -->
+	<div>
+		<input type="checkbox" id="menuicon" name="menuicon" onclick="leftcheck()">
+		<label id="wait" for="menuicon">
+			<span></span>
+			<span></span>
+			<span></span>
+		</label>
+		<div class="sidebar">
+			<div class="leftline"></div>
+			<div class="sidemenu">
+				<p><a href="home">MAIN</a></p>
+				<p><a href="kategorieProcess?pc=0">SHOP</a></p>
+				<p><a href="OurStoryPage">OUR STORY</a></p>
+				<p><a href="ContactPage">CONTACT</a></p>
+			</div>
+		</div>
+	</div>
+	<!-- 상단 바 -->
+	<div>
+		<div class="nav">
+			<div class="logo">
+				<a href="home" class="logolink">ANABADA</a>
+			</div>
+			<div class="smol">
+				<ul class="smol_ul">
+					<!-- 위대한 장바구니 선생님 -->
+					<c:if test="${user_id == null }">
+					<li class="smol_li"><a href="login">MYPAGE</a></li>
+					</c:if>
+					<c:if test="${user_id != null }">
+					<li class="smol_li"><a href="UserInfoPage">MYPAGE</a></li>
+					</c:if>
+					
+					<li class="smol_li">
+						<input type="checkbox" id="sicon" name="sicon" onclick="rightcheck()">
+						<label for="sicon" id="change">
+							<span></span>
+							<span></span>
+							<a>CART</a>
+						</label>
+						<div id="unfold" class="shopping_bar">
+							<div class="hidden_menu">
+								<input id="back" type="button" value="BACK SPACE ➞" onclick="homeback()">
+							</div>
+							<div class="rightline"></div>
+							<div id="width" class="shopping_menu">
+								<!-- 장바구니 기본형 -->
+								<div id="list_smol">
+								
+								</div>
+								<!-- 장바구니 펼쳤을때 -->
+								<div id="list"></div>
+							</div>
+							<input id="hidebutton" type="button" value="CHECKOUT" onclick="unfold();">
+						</div>
+					</li>
+					<!-- 아이디 -->
+					<c:if test="${user_id == null }">
+						<li class="smol_li"><a href="login">LOGIN</a></li>
+					</c:if>
+					<c:if test="${user_id != null }">
+						<li class="smol_li"><a href="logout">LOGOUT</a></li>
+					</c:if>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- 메인 이미지 -->
+	<div class="container">
+		<div class="first">
+			<div class="seck"></div>
+			<img src="${pageContext.request.contextPath}/resources/img2/main.jpg">
+			<div class="text">
+				<p>Numerous memories and stories gather every day.</p>
+				<h1 style="font-size: 62px; max-width: 600px; margin-top: 10px; margin-bottom: 10px;">Welcome to Our ANABADA</h1>
+				<p style="max-width: 500px;">These items are all things that someone willingly offered for someone else with a good heart.</p>
+				<p><a href="kategorieProcess?pc=0"><input type="button" value="See Our Product ≻"></a></p>
+			</div>
+			<div class="main_img"><img src="${pageContext.request.contextPath}/resources/img2/main2.jpg"></div>
+		</div>
+		<!-- 메인 상품들 -->
+		<div class="main_text">
+			<p style="margin-bottom: 70px; margin-top: 70px;">CONTENTS</p>
+		</div>
+		<div class="our_shop">
+			<div class="simg">
+				<img src="${pageContext.request.contextPath}/resources/img2/shopping.jpg">
+			</div>
+			<div class="textline">
+				<h2>Product</h2>
+				<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. 
+				The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 
+				'Content here, content here', making it look like readable English.</p>
+				<a href="kategorieProcess?pc=0" style="text-decoration: underline; color: black">more</a>
+			</div>
+		</div>
+		<div class="our_story">
+			<div class="textline2">
+				<h2>Our Story</h2>
+				<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. 
+				The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 
+				'Content here, content here', making it look like readable English.</p>
+				<a href="OurStoryPage" style="text-decoration: underline; color: black">more</a>
+			</div>
+			<div class="timg">
+				<img src="${pageContext.request.contextPath}/resources/img2/ourS.jpg">
+			</div>
+		</div>
+		<div class="our_shop">
+			<div class="simg">
+				<img src="${pageContext.request.contextPath}/resources/img2/contact.jpg">
+			</div>
+			<div class="textline">
+				<h2>Contact</h2>
+				<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. 
+				The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 
+				'Content here, content here', making it look like readable English.</p>
+				<a href="ContactPage" style="text-decoration: underline; color: black">more</a>
+			</div>
+		</div>
+	</div>
+</div>
+<footer><br><br>Welcome Of Our 3Secons of Mars</footer> 
+</body>
+</html>
